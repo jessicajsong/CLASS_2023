@@ -183,7 +183,7 @@ lncrna_mrna_genes_df <- lncrna_mrna_genes %>% as.data.frame()
 
 # annotation file for promoters of mRNA and lncRNA genes
 lncrna_mrna_promoters <- promoters(lncrna_mrna_genes, upstream = 1000, downstream = 1000)
-
+width(lncrna_mrna_promoters)
 rtracklayer::export(lncrna_mrna_promoters, "/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/CLASSES/05_class_exercise/01_peak_features/gene_annotations/lncrna_mrna_promoters.gtf")
 
 lncrna_gene_ids <- mrna_lncrna_genes$gene_id[mrna_lncrna_genes$gene_type == "lncRNA"]
@@ -307,6 +307,7 @@ peak_occurence_df <- data.frame("gene_id" = colnames(promoter_peak_occurence),
                                 "1kb_up_tss_start" = lncrna_mrna_promoters@ranges@start,
                                 "strand" = lncrna_mrna_promoters@strand,
                                 "number_of_dbp" = colSums(promoter_peak_occurence))
+peak_occurence_df
 write_csv(peak_occurence_df, "results/peak_occurence_dataframe.csv")
 
 ```
