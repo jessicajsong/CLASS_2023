@@ -80,7 +80,7 @@ table(seqnames(gencode_gr))[25]
 # Indexing Granges (@elementMetadata$INDEXING)
 ```{R indexing GRanges}
 
-# we see a lot of good infromation in @elementMetadata -- let's index it.
+# we see a lot of good information in @elementMetadata -- let's index it.
 
 # let's see how many 'gene_id' values there are by indexing
 table(gencode_gr@elementMetadata$gene_id) %>% 
@@ -95,13 +95,17 @@ table(gencode_gr@elementMetadata$gene_name) %>%
 table(gencode_gr@elementMetadata$transcript_name) %>%
   head()
 
+# transcript_id
+## for a specific version of a gene
+
 # it's basically memorization of what is a gene name or gene id 
 
-# if you wanted to look at this more expanisvely (instead of just head lines)
+# if you wanted to look at this more expansively (instead of just head lines)
 # you can make it into an object
 
 gencode_info <- table(gencode_gr@elementMetadata$gene_name) %>% 
  as.data.frame()
+# you can pipe one object into another object
 
 # cool now you can look for any feature for your favorite genes
 ```
@@ -167,7 +171,7 @@ table(gencode_gr@elementMetadata$type)
 
 ## cool this tell us a lot about the genome with one line!
 
-# Moving forwrard we will use the "$type" "genes"
+# Moving forward we will use the "$type" "genes"
 ```
 
 # Finding genome feature lengths
@@ -183,7 +187,7 @@ summary(width(gencode_gr))
 interesting some genes are just 1 nt long!
 let's look into that some more
 
-# what annotaitons have width of 1nt?
+# what annotations have width of 1nt?
 ```{R annotation widths of 1 ?}
 # we will use indexing and setting a value of 1 and making DF
 width_1_items <- gencode_gr[width(gencode_gr) == 1] %>%
@@ -201,7 +205,7 @@ weird_exons <- width_1_items %>%
 
 huh 33 exons are 1 nt -- annotations are never perfect :)
 The one thing that should be 1nt long is a TSS.
-To get the TSS we need to use the promters function:
+To get the TSS we need to use the promoters function:
 
 # defining gene TSS 
 ```{R annotation widths of 1 ?}

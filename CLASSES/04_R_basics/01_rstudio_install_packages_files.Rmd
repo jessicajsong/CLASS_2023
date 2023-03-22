@@ -55,7 +55,6 @@ In the top right hand corner there is a dropdown with "R shield"
 Now we will use Install.packages() for most packages. This will install any packages in CRAN repository. Let's try one.
 ```{R install packages}
 ?install.packages
-install.packages("tidyverse")
 ```
 Cool we have our first package installed.
 
@@ -112,19 +111,56 @@ Exercise : install packages needed for class
 # probably worth reading what they do while installing...
 
 Iranges
+# can't get this one?
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("IRanges")
+
 ggplot2
+# good to go
+install.packages("ggplot2")
+
 broom
+# good to go
+install.packages("broom")
+
 Gviz
+# issues?
+BiocManager::install("Gviz")
+
 ggdendro
+# good to go
+install.packages("ggdendro")
+
 ggrepel
+# good to go
+install.packages("ggrepel")
+
 pheatmap
+# good to go
+install.packages("pheatmap")
+
 httr
+# good to go
+install.packages("httr")
+
 janitor
+# good to go
+install.packages("janitor")
+
 purrr
+# good to go
+install.packages("purrr")
+
 deseq2
+
+BiocManager::install("DESeq2")
 
 # let's try this one -- maybe tricky:
 ggpubr
+# good to go
+install.packages("ggpubr")
 
 
 

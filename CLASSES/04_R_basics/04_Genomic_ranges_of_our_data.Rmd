@@ -44,7 +44,6 @@ just having the advantage of indexing chromosome and strand to the start and sto
 
 # Let's create a GRange using IRange logic. What we need is:
 # Chromosome, Strand, Ranges
-
 gr <- GRanges(seqnames = c("chrX"), strand = c("+", "-", "*"), ranges = IRanges(start = c(1,200, 1000), end = c(30, 299, 1200)))
 
 # let's see 
@@ -92,6 +91,9 @@ I have some set up to test in the data folder.
 basepath <- "/scratch/Shares/rinnclass/CLASS_2023/<your_folder>"
 path <- "CLASS_2023/CLASSES/03_Nextflow/00_Pol2_NF_CORE_RUN/results/bwa/mergedLibrary/macs/broadPeak"
 
+basepath <- "/scratch/Shares/rinnclass/CLASS_2023/jeso3380"
+path <- "CLASS_2023/CLASSES/03_Nextflow/00_Pol2_NF_CORE_RUN/results/bwa/mergedLibrary/macs/broadPeak"
+ 
 # first we read the peak files in as gRanges object with rtracklayer function.
 peaks1 <- rtracklayer::import(file.path(basepath,path, "POLR2A_R1_peaks.broadPeak"))
 peaks2 <- rtracklayer::import(file.path(basepath,path, "POLR2A_R2_peaks.broadPeak"))
@@ -211,7 +213,7 @@ table(table(crazy_ovf@to))
 Result: crazy_peaks1 has much wider peaks and in turn more overlaps than peaks.
 Thus Crazy_peaks1 had 6,388 unique peaks and nearly half the overlaps came from
 peaks with multiple overlaps in crazy_peaks1. We can also conclude that the smaller 
-peaks in crazy_peaks2 were close by to each other -- causing the extra overalps.
+peaks in crazy_peaks2 were close by to each other -- causing the extra overlaps.
 
 
 # Solution 2: count overlaps
@@ -222,7 +224,7 @@ We can look at how overlaps are reported using: countOverlaps
 # let's try countOverlaps
 crazy_ovf2 <-countOverlaps(crazy_peaks1, crazy_peaks2)
 # NOTE - INTEGER VALUE IN ENVIRONMENT 
-# There as many enteries as peaks in crazy_peaks1 (subject)
+# There as many entries as peaks in crazy_peaks1 (subject)
 # each entry has number of times that peak had an overlaps
 sum(crazy_ovf2)
 # cool this get's us to our 11,042 overlaps!

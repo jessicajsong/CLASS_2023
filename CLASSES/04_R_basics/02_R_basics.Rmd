@@ -21,7 +21,7 @@ We will use read_tsv to load in a peak file that is in tab separated format (tsv
 ```{bash}
 
 # The Peak files are located in our 03 nextflow folder -- let's take a look:
-cd /scratch/Shares/rinnclass/CLASS_2023/<your_folder>/CLASS_2023/CLASSES/03_Nextflow/00_Pol2_NF_CORE_RUN/results/bwa/mergedLibrary/macs/broadPeak
+cd /scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/CLASSES/03_Nextflow/00_Pol2_NF_CORE_RUN/results/bwa/mergedLibrary/macs/broadPeak
 
 # We see a lot of different types of peak files and we want .braodPeak Let's load one in 
 
@@ -34,11 +34,11 @@ Since that is a lot of path typing each time let's shorten it my using file.path
 
 # we will first need to set an object name to load into the environment (what we are calling this file.path)
 # we assign it the values in the file using the assignment opperator " <- " 
-basepath <- "/scratch/Shares/rinnclass/CLASS_2023/<your_folder>"
+basepath <- "/scratch/Shares/rinnclass/CLASS_2023/jeso3380"
 
 # we can then add the rest of the path as such:
 Pol2_peak1 <- read_tsv(file.path(basepath, " rest of file path"))
-
+Pol2_peak1 <- read_tsv(file.path(basepath, "CLASS_2023/CLASSES/03_Nextflow/00_Pol2_NF_CORE_RUN/results/bwa/mergedLibrary/macs/broadPeak/POLR2A_R1_peaks.broadPeak"))
 
 # now we can read in the peak file using file.path() function , rest of path
 # we will use the "read_tsv" baseR function and assign it ( <- ) to Pol2_peak1
@@ -59,7 +59,7 @@ Solution: figure out more about read_tsv
 ?read_tsv
 
 # cool so there is a col_names = F we can use -- let's try it.
-Pol2_peak1 <- read_tsv("/scratch/Shares/rinnclass/CLASS_2023/JR/CLASS_2023/CLASSES/03_Nextflow/00_Pol2_NF_CORE_RUN/results/bwa/mergedLibrary/macs/broadPeak/POLR2A_R1_peaks.broadPeak", col_names = F)
+Pol2_peak1 <- read_tsv("/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/CLASSES/03_Nextflow/00_Pol2_NF_CORE_RUN/results/bwa/mergedLibrary/macs/broadPeak/POLR2A_R1_peaks.broadPeak", col_names = F)
 
 # Nice so now we have X1-X9 as col names
 ```
@@ -179,12 +179,11 @@ Now let's make a new column that has the width of the peak using "mutate" functi
 ?mutate
 
 # we will use tidyverse to pipe the DF to mutate so it knows col names
-
 Pol2_peak1 <- Pol2_peak1 %>%
   # mutate wants name of new col and then function to create that col
   # we will simply subtract the end and start of the peak.
   
-  mutate(peak_width = end - start)
+mutate(peak_width = end - start)
 # That is very handy and a function we will use a lot !!
 
 ```

@@ -12,10 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 options(stringsAsFactors = F)
 library(tidyverse)
 library(GenomicRanges)
-source("../../../util/my_class_functions.R")
+source('/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/util/BCHM5631_JS_functions.R')
 
 # filepath to import peaks
-basepath <- "/scratch/Shares/rinnclass/CLASS_2023/JR"
+basepath <- "/scratch/Shares/rinnclass/CLASS_2023/jeso3380"
 peak_path <- "CLASS_2023/CLASSES/05_R_analyses/00_consensus_peaks/consensus_peaks"
 consensusPeakPath <- file.path(basepath, peak_path)
 ```
@@ -41,6 +41,7 @@ And many more questions.
 # set up working directory: 
 set working directory to CLASS_2023/CLASSES/05_R_analyses/01_peak_features
 
+setwd("/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/CLASSES/05_R_analyses/01_peak_features")
 
 # Let's start importing all the files we need:
 
@@ -55,7 +56,7 @@ consensus_peaks <- lapply(consensus_peaks_files, rtracklayer::import)
 
 # adding DBP name to each list of GRanges from the file name
 # note gsub requires no space around or argument ( | )
-names(consensus_peaks) <- gsub("/scratch/Shares/rinnclass/CLASS_2023/JR/CLASS_2023/CLASSES/05_R_analyses/00_consensus_peaks/consensus_peaks/|_consensus.bed","", consensus_peaks_files)
+names(consensus_peaks) <- gsub("/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/CLASSES/05_R_analyses/00_consensus_peaks/consensus_peaks|_consensus.bed","", consensus_peaks_files)
 
 ```
 
@@ -75,6 +76,7 @@ gencode_genes <- gencode_gr[gencode_gr$type == "gene"]
 table(gencode_gr$type)
 
 # exporting all genes file (we will save all the .Rdata too at the end)
+# gtf is a generalized text file
 rtracklayer::export(gencode_genes, "results/gene_annotations/gencode_genes.gtf")
 
 # mRNA genes (called "protein_coding") in this version of gencode changes sometimes !
@@ -110,7 +112,7 @@ lncrna_mrna_genes_df <- lncrna_mrna_genes %>% as.data.frame()
 
 Now let's make a promoter annotation file and gene_body for future use.
 ```{R promoter annotations} 
-# promoter regions with Genomic Ranges funciton "promoters"
+# promoter regions with Genomic Ranges function "promoters"
 ?promoters
 
 # creating and exporting promoter annotations
@@ -119,10 +121,11 @@ lncrna_mrna_promoters <- promoters(lncrna_mrna_genes, upstream = 1000, downstrea
 width(lncrna_mrna_promoters)
 rtracklayer::export(lncrna_mrna_promoters, "results/gene_annotations/lncrna_mrna_promoters.gtf")
 
-
 # last handy annotation will be lncRNA and mRNA gene IDs to subset
 lncrna_gene_ids <- mrna_lncrna_genes$gene_id[mrna_lncrna_genes$gene_type == "lncRNA"]
 table(mrna_lncrna_genes$gene_type)
+# this number is the same as wht we have for lncrna_gene_ids
+
 # same for mRNAs
 mrna_gene_ids <-mrna_lncrna_genes$gene_id[mrna_lncrna_genes$gene_type == "protein_coding"]
 
@@ -142,6 +145,7 @@ we can start by creating a data frame of peak overlaps.
 num_peaks_df <- data.frame("dbp" = names(consensus_peaks),
                            "num_peaks" = sapply(consensus_peaks, length))
 
+## we'll be using num_peaks_df for plotting
 
 # Now let's get the total amount of the genome covered by all the peaks for a given DBP.
 
@@ -164,9 +168,11 @@ Take a look at the function -- pretty simple.
 (3) counts (number of overlaps), 
 occurence (matrix of 1 if overlap 0 if not)
 
-```{r count_peaks_per_feature function !}
+```{r count_peaks_per_feature function to find overlaps !}
 
 # counting promoter overlaps
+source("../../../util/my_class_functions.R")
+
 promoter_peak_counts <- count_peaks_per_feature(lncrna_mrna_promoters, consensus_peaks, type = "counts")
 
 # ok we see this is a large matrix of the number of overlaps at each promoter
@@ -194,19 +200,22 @@ write_csv(num_peaks_df, "results/num_peaks_df.csv")
 Now let's do the same thing for gene-bodies
 First we will make a gene-body object like we did for promoters above.
 
-```{r extracting genebody overlpas counts data }
+```{r extracting genebody overlaps counts data }
 
 # Finding overlaps with gene_bodies (will take a few minutes again)
 # Note this takes 10-15 min
 genebody_peak_counts <- count_peaks_per_feature(mrna_lncrna_genes, 
                                                 consensus_peaks, 
                                                 type = "counts")
+## takes some time to load, don't freak out when a white screen loads when you try to open it
 
 # Now let's extract the overlaps the same way we did for promoters above
 
 # All gene bodies
 num_peaks_df$peaks_overlapping_genebody <- 
   rowSums(genebody_peak_counts)
+
+## $whatever is indexing and creating that column
 
 # lncRNA gene bodies 
 num_peaks_df$peaks_overlapping_lncrna_genebody <- rowSums(genebody_peak_counts[,lncrna_gene_ids])
@@ -217,13 +226,13 @@ num_peaks_df$peaks_overlapping_mrna_genebody <-
 
 # let's take a look.
 # cool lots of info let's save:
-write_csv(num_peaks_df, "num_peaks_df.csv")
+write_csv(num_peaks_df, "results/num_peaks_df.csv")
 
 ```
 
 # Downloading TF annotation data set
 # this is a handy lesson of how to download any file in R
-We have a large group of different DBPs so let's import some annotaitons of which
+We have a large group of different DBPs so let's import some annotations of which
 ones are transcription factors etc. A paper in Cell is one of the better annotations --
 however they are never perfect :)
 
@@ -261,6 +270,7 @@ names(human_tfs)[4] <- "is_tf"
 
 # now let's intersect gene names that are in our ChIP data and has TF identity.
 length(which(tolower(num_peaks_df$dbp) %in% tolower(human_tfs$Name)))
+
 ```
 
 # merging annotation file to num_peaks_df

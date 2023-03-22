@@ -53,7 +53,7 @@ gencode_promoters <- promoters(gencode_gr[gencode_gr$type == "gene"],
                                upstream = 1e3, 
                                downstream = 1e3)
 
-
+length(gencode_gr[gencode_gr$type == "gene"])
 length(gencode_promoters)
 # there are ~60,000 promoters in the $type == gene
 
@@ -69,6 +69,7 @@ Now we have promoter ranges and peak ranges let's use findOverlaps function
 promoter_overlaps_pol2_peaks1 <- findOverlaps(peaks1, gencode_promoters)
 # Let's look
 promoter_overlaps_pol2_peaks1
+length(peaks1)
 
 # nice we see that 19,063 promoters overlap with Pol2 replicate 1.
 # Let's try the same for replicate 2:
@@ -85,14 +86,15 @@ We can use our new skill and findOverlaps of the overlaps :)
 
 # Overlap of promoters between replicates
 ```{r overlap of overlaps}
-# one obvious thought maybe to do findOverlaps(promoter_overlaps_pol2_peaks1, promoter_overlaps_pol2_peaks2)
+# one obvious thought maybe to do
+findOverlaps(promoter_overlaps_pol2_peaks1, promoter_overlaps_pol2_peaks2)
 # Let's try it !
 
 same_prom_ov <- findOverlaps(promoter_overlaps_pol2_peaks1, promoter_overlaps_pol2_peaks2)
 
 # huh that didn't work? Why not?
 ```
-well the findOveralps provides @to and @from that can's be overlapped 
+well the findOverlaps provides @to and @from that can's be overlapped 
 these are indicies of which one overlaps
 Peak 1 w. Peak 7, Peak 1 with peak 10 etc ...
 NOTE: each peak is going to have numerous overlaps so we want only the unique ones.
@@ -104,8 +106,11 @@ NOTE: each peak is going to have numerous overlaps so we want only the unique on
 # Thus we can index there and only retrieve the peaks that had overlaps
 # Since we did peaks1, gencode promoters peaks1 is @ from and promoters @ to
 
+## Basically finding overlaps between peaks1 and promoters and then between peaks2 and promoters. Then finding overlaps between promoters/peaks1 and promoters/peaks2
+
 # indexing
 peak1_ov_gr <- peaks1[unique(promoter_overlaps_pol2_peaks1@from)] 
+### indexing into a peak file, index out only the stuff that mentions that function aka give me all the peaks that overlap with promoters but only the unique ones and where are they in the file
 
 # indexing
 peak2_ov_gr <- peaks2[unique(promoter_overlaps_pol2_peaks2@from)]
@@ -144,6 +149,7 @@ promoter_overlaps_pol2_peaks2
 
 # now overlapping the two overlaps by findOverlaps
 subset_overlaps_peaks <- findOverlaps(promoter_overlaps_pol2_peaks1, promoter_overlaps_pol2_peaks2)
+ 
 subset_overlaps_peaks
 # 12,961 -- It's the same -- yay and simpler code.
 
@@ -188,7 +194,7 @@ Now let's overlap our peak files and then overlap with promoters.
 # Percentage of consensus peaks that overlap promoters?
 
 ```{r peak overlaps and promoter overlaps}
-
+#consensus - final peak file that is the sum of all peaks
 pol2_consensus_peaks <- subsetByOverlaps(peaks1, peaks2)
 pol2_consensus_peaks
 # 27,206 
@@ -197,7 +203,9 @@ peaks1
 peaks2
 # 43,435
 
-# Ok so we somethign similar to R_basica/03_
+# Need to create a dataframe from the pol2_consensus_peaks...
+
+# Ok so we something similar to R_basics/03_
 
 # Overlap with promoters:
 pol2_consensus_peaks_ov_promoters <- subsetByOverlaps(pol2_consensus_peaks, gencode_promoters)

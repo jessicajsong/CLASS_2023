@@ -41,6 +41,7 @@ fun <- function(x, y) {
 fun(2,-4)
 # Note that the object ans doesn't exist in our environment. 
 # ans is a local variable that is erased after used. global variables are in our environment.
+## aka not a new file added to the env
 # It's good to remember the "scope" of vars in a function don't really exist outside the function.
 # Finally note a function can only return one thing!
 
@@ -66,6 +67,8 @@ fun <- function(x, y) {
 ```
 
 # Let's make this a function we can source from our util directory
+setwd("/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/util")
+
 (1) go to the util (CLASS_2023/util) and set as working dir
 (2) Rstudio: File > newfile > Rscript : paste in function above.
 (3) save as "my_class_functions.R" {MAKE SURE you see in util}
@@ -79,7 +82,6 @@ fun <- function(x, y) {
 library(GenomicRanges)
 library(tidyverse)
 library(IRanges)
-source("../../util/my_class_functions.R")
 # cool we see it loaded in environment and ready to use!
 # now type fun(7,6) in console
 # We will store all our custom function in this .R script
@@ -103,7 +105,9 @@ This is a very common first step and now we can automate it with some functions!
 # First let's set a file path to where all our peak files are.
 # This is very helpful in the long run to not have huge filepaths everywhere :)
 basepath <- "/scratch/Shares/rinnclass/CLASS_2023/JR"
+basepath <- "/scratch/Shares/rinnclass/CLASS_2023/kurt"
 peak_path <- "CLASS_2023/CLASSES/03_Nextflow/00_my_chipseq/results/bwa/mergedLibrary/macs/broadPeak"
+peak_path <- "CLASS_2023/group_chip/Jessica/results/bwa/mergedLibrary/macs/broadPeak"
 broadpeakfilepath <- file.path(basepath, peak_path)
 
 
@@ -119,7 +123,7 @@ fl
 # This gives us an index 1:n where each peak file path is a character vector.
 # let's try this to grab just one protein (can be the one from your group)
 fl_ep300 <- fl[grep("EP300", fl)]
-
+fl_ATF3 <- fl[grep("ATF3", fl)]
 # cool now we can subset this to any protein of our choosing
 
 ```
@@ -130,7 +134,7 @@ Let's look at some indexing and ways we can extract file info.
 ```{R extraction and regular expression} 
 
 # We can index into our file list using [ ]
-# let's see what file path 7 is:
+# let's see what file path 7 is (what is the 7th entry):
 fl[7]
 # now let's just get the end of the file name that contains the DBP name
 
@@ -150,7 +154,7 @@ unlist(strsplit(y, "_"))[[1]]
 
 # what happens if we try and run together:
 
-y <-  str_extract(fl[28], "([^\\/]+$)") %>%
+y <-  str_extract(fl[7], "([^\\/]+$)") %>%
   unlist(strsplit(y, "_"))[[1]]
 
 # Error !! Why ?
@@ -165,7 +169,7 @@ y <-  str_extract(fl[28], "([^\\/]+$)") %>%
 
 # first we set an object dbp_name 
 # next we create a genetic function (here it is generic function x)
-
+# sapply is a function like a forward loop, new function and the only parameter is y
 dbp_name <- sapply(fl, function(y){
  y <-  str_extract(y, "([^\\/]+$)")
  # NOTE alternative
@@ -202,7 +206,7 @@ import_peaks <- function(consensus_file_path = peak_path) {
   
 }
 
-# Nothing happened ?? Becuase we have simply made import peaks function available to us.
+# Nothing happened ?? Because we have simply made import peaks function available to us.
 # we did not actually run it and it's now in our local environment as a function to be called.
 # let's test it:
 test <- import_peaks(broadpeakfilepath)
@@ -285,7 +289,7 @@ num_peaks <- sapply(my_peaks, length) %>% as.data.frame()
 ```
 Nice about 4 lines of code to import all desired peak files 
 We will use this for thousands of peaks near the end of class
-# Conratulations on your new functions :)
+# Congratulations on your new functions :)
 
 *********************
 EXCERCISE

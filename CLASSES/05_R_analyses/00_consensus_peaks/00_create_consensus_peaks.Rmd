@@ -13,11 +13,15 @@ options(stringsAsFactors = F)
 library(GenomicRanges)
 library(tidyverse)
 library(IRanges)
-source("../../../util/my_class_functions.R")
+source('/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/util/BCHM5631_JS_functions.R')
 
 # filepath to import peaks
-basepath <- "/scratch/Shares/rinnclass/CLASS_2023/<your_folder>"
-peak_path <- "CLASS_2023/CLASSES/03_Nextflow/00_my_chipseq/results/bwa/mergedLibrary/macs/broadPeak/"
+basepath <- "/scratch/Shares/rinnclass/CLASS_2023/kurt/CLASS_2023"
+peak_path <- "group_chip/Jessica/results/bwa/mergedLibrary/macs/broadPeak/"
+broadpeakfilepath <- file.path(basepath, peak_path)
+
+basepath <- "/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023"
+peak_path <- "CLASSES/03_Nextflow/01_my_chipseq/results/bwa/mergedLibrary/macs/broadPeak/"
 broadpeakfilepath <- file.path(basepath, peak_path)
 ```
 Acompanying youtube video:
@@ -61,7 +65,7 @@ write_csv(peak_num, "results/num_peaks_df.csv")
 # STEP2: create consensus peaks
 ```{r create consensus peaks}
 # first we need a list of unique dbps as input parameter
-dbp <- c("EP300", ...)
+dbp <- c("ATF3", ...)
 # works but real pain for 480 dbps later :)
 
 # or use our handy previous code 
@@ -72,6 +76,8 @@ dbps <- unique(sapply(names(peak_list), function(x) {
 # now run our function consensus_from_reduced
 consensus_list <- lapply(dbps, consensus_from_reduced, peak_list)
 names(consensus_list) <- dbps
+
+sapply(consensus_list, length)
 
 ```
 
@@ -98,7 +104,11 @@ Let's use "analysis/00_consensus_peaks/
 
 ```{r exporting consensus peaks }
 # setting file path to export
-basepath <- "/scratch/Shares/rinnclass/CLASS_2023/<your_folder>"
+basepath <- "/scratch/Shares/rinnclass/CLASS_2023/jeso3380"
+consensus_path <- "/CLASS_2023/CLASSES/05_R_analyses/00_consensus_peaks/consensus_peaks"
+exportpath <- file.path(basepath, consensus_path)
+
+basepath <- "/scratch/Shares/rinnclass/CLASS_2023/jeso3380"
 consensus_path <- "CLASS_2023/CLASSES/05_R_analyses/00_consensus_peaks/"
 exportpath <- file.path(basepath, consensus_path)
 
@@ -120,7 +130,7 @@ Now let's read in one of these files and see what we see:
 
 ```{r reading .bed file from rtracklayer_export}
 # read in a given peak file 
-peak_1 <- read_tsv("EP300_consensus_peaks.bed", col_names = F)
+peak_1 <- read_tsv("ATF3_consensus_peaks.bed", col_names = F)
 
 # ok we can see that rtracklayer did not keep qvalue sigvalue etc
 # we also see the odd contings etc.
@@ -131,7 +141,7 @@ peak_1 <- read_tsv("EP300_consensus_peaks.bed", col_names = F)
 Rtracklayer export does not keep the col names :( 
 ```{r reading .bed file from rtracklayer_export}
 # FIRST a file list:
-consensus_file_list <- list.files("/scratch/Shares/rinnclass/CLASS_2023/JR/CLASS_2023/CLASSES/05_R_analyses/00_consensus_peaks", full.names = T, pattern = ".bed")
+consensus_file_list <- list.files("/scratch/Shares/rinnclass/CLASS_2023/jeso3380/CLASS_2023/CLASSES/05_R_analyses/00_consensus_peaks", full.names = T, pattern = ".bed")
 
 # lapply (for loop) across consensus file list to add colnames
 # The actual col names for .broadPeak are: chr, start, end, name, score, strand
@@ -169,7 +179,7 @@ Next we need a header to be compatible with UCSC
 We are using a broadPeak file which UCSC recognizes
 but we need to tell it which one it is in header
 
-There is a lot of infomation here on file formats for UCSC:
+There is a lot of information here on file formats for UCSC:
 
 https://genome.ucsc.edu/FAQ/FAQformat.html#format1
 
@@ -179,19 +189,22 @@ The header we need is : track type=broadPeak name="
 # we are using paste0 to print the header text
 # then we are adding the names as the value the header equals with 'names' function
 
-headers <- paste0("track type=bedGraph name=", names(peaks))
+headers <- paste0("track type=bed name=", names(peaks))
 headers
 
 # creating a path to export after we add header in for loop below
-new_filenames <- paste0("ucsc_consensus_peaks/", names(peaks), ".bed")
+new_filenames <- paste0("ucsc_consensus_peaks_v2/", names(peaks), ".bed")
 new_filenames
+
+### No / before ucsc_consensus_peaks!!!
+
 ```
 
 Cool, now we have an object "new_filenames" that has 
 the file path we want to write out each file to.
 Let's use a for loop to print each file out separately and append the header.
 ```{R}
-# let's do so more indexing and only print out the first two of the three files.
+# let's do some more indexing and only print out the first two of the three files.
 
 for(i in 1:length(peaks)) {
   # Write the header line
@@ -203,13 +216,20 @@ for(i in 1:length(peaks)) {
               quote = FALSE, append = TRUE)
 }
 
+for(i in 1:length(peaks)) {
+  writeLines(headers[[i]], new_filenames[[i]])
+  write.table(peaks[[i]], new_filenames[[i]],
+              sep = "\t", col.names = FALSE, row.names = FALSE,
+              quote = FALSE, append = TRUE)
+}
+
 # note append=TRUE is very important otherwise when the peak data is imported it will overwrite header
 ```
 
 # let's take a look in UCSC !
 (1) file transfer a consensus peak to your comp
-(2) go to class UCSC account BCHM_5631
-(3) custome tracks and load consensus file.
+(2) go to class UCSC account BCHM_5631 (password is the same)
+(3) custom tracks and load consensus file.
 (4) load raw data for your protein 
 (5) compare consensus peaks with raw data!
 
